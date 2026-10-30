@@ -1,0 +1,32 @@
+AGENDA DEV — ALERTAS AUTOMÁTICOS POR GMAIL
+
+ARQUIVOS
+- index.html: página principal
+- agenda.css: estilos originais
+- agenda.js: lógica original + sincronização
+- config.js: URL do Apps Script (precisa preencher)
+- Code.gs: backend que guarda tarefas e envia os e-mails
+
+CONFIGURAÇÃO (necessária uma única vez)
+1. Entre em https://script.google.com/ com a conta Gmail que será usada PARA ENVIAR os avisos.
+2. Crie um Novo projeto e substitua o conteúdo do arquivo Code.gs pelo conteúdo de Code.gs desta pasta.
+3. No editor do Apps Script, selecione a função configurarServico e clique em Executar. Autorize as permissões solicitadas para enviar e-mails e criar gatilhos.
+4. Clique em Implantar > Nova implantação > Aplicativo da Web.
+5. Em Executar como, escolha "Eu". Em Quem pode acessar, escolha "Qualquer pessoa" (necessário para o site enviar atualizações sem login Google; não compartilhe a URL publicamente além do seu site).
+6. Clique em Implantar, autorize se solicitado e copie a URL terminada em /exec.
+7. Abra config.js e substitua COLE_A_URL_DO_APPS_SCRIPT_AQUI pela URL copiada, mantendo as aspas.
+8. Publique os arquivos index.html, agenda.css, agenda.js e config.js juntos no mesmo serviço de hospedagem HTTPS (GitHub Pages, Netlify etc.). O Code.gs NÃO vai para a hospedagem do site: ele fica no Apps Script.
+9. Abra a Agenda Dev, entre na conta, informe o Gmail destinatário no painel "Alertas por Gmail" e clique em "Salvar e ativar alertas".
+
+COMO FUNCIONA
+- O Apps Script verifica as tarefas a cada 5 minutos, mesmo com o navegador fechado.
+- Envia um aviso quando faltar até 24 horas e outro quando o prazo já estiver vencido.
+- Cada tipo de aviso é enviado uma vez por tarefa/versão do prazo. Se mudar título, data ou hora, uma nova versão do aviso poderá ser enviada.
+- O destinatário pode ser qualquer endereço terminado em @gmail.com. O remetente é a conta Google que implantou/autorizou o Apps Script.
+- As tarefas são enviadas para o armazenamento do Apps Script. O código mantém também a cópia local no navegador.
+
+LIMITAÇÕES E SEGURANÇA
+- O site atual usa login próprio no navegador (localStorage), não contas Google. A sincronização usa um identificador aleatório do navegador, não autenticação forte. É adequado para protótipo/uso pessoal, não para dados sensíveis ou um sistema público multiusuário.
+- A implantação "Qualquer pessoa" permite chamadas ao endpoint. Para um sistema público, é necessário adicionar autenticação real no servidor, controles contra abuso e política de privacidade.
+- O navegador deve estar aberto ao menos uma vez depois de criar/alterar tarefas para sincronizá-las. Depois disso, os avisos dessas tarefas continuam sendo enviados com o navegador fechado.
+- Se alterar o código do Apps Script após publicar, faça Implantar > Gerenciar implantações > Editar > Nova versão.

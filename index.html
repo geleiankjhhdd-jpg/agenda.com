@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark light">
+    <title>Agenda Dev | Central de Produtividade</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234f7cff'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11.5' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="agenda.css">
+</head>
+<body>
+
+    <!-- =====================================================
+         AVISO DE PRAZO
+    ====================================================== -->
+    <div id="notificacaoTempo" role="status" aria-live="polite">
+        <button type="button" class="toast-close" id="notificacaoFechar" aria-label="Fechar aviso">×</button>
+        <div class="notificacao-titulo" id="notificacaoTitulo">Aviso de prazo</div>
+        <div class="notificacao-tarefa" id="notificacaoTarefa"></div>
+        <div class="notificacao-tempo" id="notificacaoTexto"></div>
+    </div>
+
+    <!-- =====================================================
+         LOGIN
+    ====================================================== -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-box">
+
+            <div class="brand-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4.5" width="18" height="16" rx="3"></rect>
+                    <path d="M8 2.5v4M16 2.5v4M3 10h18"></path>
+                    <path d="M9 15.2l2.1 2.1L15.5 13"></path>
+                </svg>
+            </div>
+
+            <h1 class="login-title">Agenda <span>Dev</span></h1>
+            <p class="login-subtitle" id="loginSubtitle">Entre com seu login e sua senha para acessar a agenda.</p>
+
+            <form id="loginForm" class="login-form" novalidate>
+                <div class="login-field">
+                    <label for="loginUsername">Login</label>
+                    <input type="text" id="loginUsername" name="username" placeholder="Digite seu login"
+                           autocomplete="username" maxlength="64" required>
+                </div>
+
+                <div class="login-field">
+                    <label for="loginPassword">Senha</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="loginPassword" name="password" placeholder="Digite sua senha"
+                               autocomplete="current-password" maxlength="256" required>
+                        <button type="button" id="togglePassword" class="password-toggle"
+                                aria-label="Mostrar senha" title="Mostrar senha">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="login-field" id="confirmPasswordField" hidden>
+                    <label for="confirmPassword">Confirme a senha</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword"
+                           placeholder="Digite a senha novamente" autocomplete="new-password" maxlength="256">
+                </div>
+
+                <div id="loginError" class="login-error" role="alert" aria-live="assertive"></div>
+
+                <button id="submitLogin" type="submit" class="btn btn-primary btn-block">Entrar na agenda</button>
+            </form>
+
+            <button type="button" id="toggleLoginMode" class="link-button">Criar conta</button>
+
+            <div class="login-security">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="4" y="11" width="16" height="10" rx="2"></rect>
+                    <path d="M8 11V7a4 4 0 018 0v4"></path>
+                </svg>
+                <span>Sua conta e suas tarefas ficam salvas somente neste navegador. A senha é armazenada de forma protegida (hash).</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================================================
+         APLICAÇÃO
+    ====================================================== -->
+    <div id="app" style="display: none;">
+
+        <header class="topbar">
+            <div class="brand">
+                <div class="brand-mark brand-mark-sm" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4.5" width="18" height="16" rx="3"></rect>
+                        <path d="M8 2.5v4M16 2.5v4M3 10h18"></path>
+                        <path d="M9 15.2l2.1 2.1L15.5 13"></path>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <h1>Agenda <span>Dev</span></h1>
+                    <p>Organize seu código, conquiste seus objetivos.</p>
+                </div>
+            </div>
+
+            <div class="topbar-actions">
+                <button type="button" class="icon-btn icon-btn-lg" id="themeToggle" aria-label="Alternar tema claro/escuro" title="Alternar tema">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"></path>
+                    </svg>
+                </button>
+
+                <div class="user">
+                    <div class="user-avatar" id="userAvatar" aria-hidden="true">D</div>
+                    <span id="userGreeting">Olá, Dev!</span>
+                </div>
+
+                <button class="btn btn-ghost btn-sm" type="button" id="logoutButton">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"></path>
+                    </svg>
+                    Sair
+                </button>
+            </div>
+        </header>
+
+        <div class="container">
+
+            <!-- MENU LATERAL -->
+            <aside class="sidebar">
+                <div class="menu-title">Menu</div>
+
+                <nav class="menu" id="mainMenu">
+                    <button type="button" class="active" data-action="inicio">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8v10a1 1 0 01-1 1h-5v-7H9v7H4a1 1 0 01-1-1z"></path></svg>
+                        Início
+                    </button>
+                    <button type="button" data-action="tarefas">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"></path></svg>
+                        Tarefas
+                    </button>
+                    <button type="button" data-action="nova">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v8M8 12h8"></path></svg>
+                        Nova tarefa
+                    </button>
+                    <button type="button" data-action="ajuda">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M9.5 9a2.5 2.5 0 114 2c-.8.6-1.5 1-1.5 2M12 17h.01"></path></svg>
+                        Ajuda
+                    </button>
+                </nav>
+
+                <div class="category-list">
+                    <div class="menu-title">Categorias</div>
+
+                    <button type="button" class="category" data-category="Estudos">
+                        <span class="category-name"><span class="dot dot-estudos"></span>Estudos</span>
+                        <b id="countEstudos">0</b>
+                    </button>
+                    <button type="button" class="category" data-category="Trabalho">
+                        <span class="category-name"><span class="dot dot-trabalho"></span>Trabalho</span>
+                        <b id="countTrabalho">0</b>
+                    </button>
+                    <button type="button" class="category" data-category="Pessoal">
+                        <span class="category-name"><span class="dot dot-pessoal"></span>Pessoal</span>
+                        <b id="countPessoal">0</b>
+                    </button>
+                    <button type="button" class="category" data-category="Urgente">
+                        <span class="category-name"><span class="dot dot-urgente"></span>Urgente</span>
+                        <b id="countUrgente">0</b>
+                    </button>
+                </div>
+            </aside>
+
+            <!-- ÁREA CENTRAL -->
+            <main>
+
+                <!-- RESUMO -->
+                <section class="stats" aria-label="Resumo das tarefas">
+                    <div class="stat">
+                        <div class="stat-label">Total</div>
+                        <div class="stat-value" id="totalTasks">0</div>
+                    </div>
+                    <div class="stat stat-pending">
+                        <div class="stat-label">Pendentes</div>
+                        <div class="stat-value" id="pendingTasks">0</div>
+                    </div>
+                    <div class="stat stat-done">
+                        <div class="stat-label">Concluídas</div>
+                        <div class="stat-value" id="completedTasks">0</div>
+                    </div>
+                    <div class="stat stat-late">
+                        <div class="stat-label">Atrasadas</div>
+                        <div class="stat-value" id="lateTasks">0</div>
+                    </div>
+                </section>
+
+                <!-- FORMULÁRIO -->
+                <section class="panel" id="formPanel">
+                    <div class="panel-title">
+                        <h2 id="formTitle">Adicionar nova tarefa</h2>
+                    </div>
+
+                    <form id="taskForm">
+                        <div class="form-group">
+                            <label class="field-label" for="taskTitle">Título</label>
+                            <input type="text" id="taskTitle" placeholder="Ex.: Finalizar relatório do projeto"
+                                   maxlength="100" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="field-label" for="taskDescription">Descrição <span class="optional">(opcional)</span></label>
+                            <textarea id="taskDescription" placeholder="Detalhes da tarefa..." maxlength="300"></textarea>
+                        </div>
+
+                        <div class="form-grid">
+                            <div>
+                                <label class="field-label" for="taskDate">Data</label>
+                                <input type="date" id="taskDate" required>
+                            </div>
+                            <div>
+                                <label class="field-label" for="taskTime">Hora</label>
+                                <input type="time" id="taskTime" value="08:00" required>
+                            </div>
+                            <div>
+                                <label class="field-label" for="taskPriority">Prioridade</label>
+                                <select id="taskPriority">
+                                    <option value="Alta">Alta</option>
+                                    <option value="Média">Média</option>
+                                    <option value="Baixa">Baixa</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="field-label" for="taskCategory">Categoria</label>
+                                <select id="taskCategory">
+                                    <option value="Estudos">Estudos</option>
+                                    <option value="Trabalho">Trabalho</option>
+                                    <option value="Pessoal">Pessoal</option>
+                                    <option value="Urgente">Urgente</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-ghost" id="cancelEdit" style="display:none">Cancelar</button>
+                            <button type="submit" class="btn btn-primary" id="submitButton">Adicionar tarefa</button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- LISTA DE TAREFAS -->
+                <section class="panel" id="tasksPanel">
+                    <div class="task-header">
+                        <div class="panel-title" style="margin:0">
+                            <h2>Minhas tarefas</h2>
+                        </div>
+
+                        <div class="task-tools">
+                            <label for="sortSelect" class="field-label inline">Ordenar</label>
+                            <select id="sortSelect">
+                                <option value="date">Mais próximas</option>
+                                <option value="newest">Mais recentes</option>
+                                <option value="priority">Prioridade</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="filters" role="group" aria-label="Filtros">
+                        <button type="button" class="filter-btn active" data-filter="all">Todas</button>
+                        <button type="button" class="filter-btn" data-filter="pending">Pendentes</button>
+                        <button type="button" class="filter-btn" data-filter="completed">Concluídas</button>
+                        <button type="button" class="filter-btn" data-filter="late">Atrasadas</button>
+                    </div>
+
+                    <div id="activeCategory" class="active-category" hidden>
+                        <span>Categoria: <b id="activeCategoryName"></b></span>
+                        <button type="button" id="clearCategory" class="link-button">Limpar</button>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="search" id="searchInput" placeholder="Pesquisar tarefas..." aria-label="Pesquisar tarefas">
+                    </div>
+
+                    <div class="task-list" id="taskList"></div>
+                </section>
+            </main>
+
+            <!-- PAINEL DIREITO -->
+            <aside class="right-column">
+
+                <section class="panel date-panel">
+                    <div class="clock" id="clock">00:00:00</div>
+                    <div class="date-text" id="currentDate">Carregando data...</div>
+                    <div class="day-text" id="currentDay"></div>
+                </section>
+
+                <section class="panel">
+                    <div class="panel-title"><h2>Próximos prazos</h2></div>
+                    <ul class="upcoming" id="upcomingList"></ul>
+                </section>
+
+                <section class="panel" id="emailPanel">
+                    <div class="panel-title"><h2>Alertas por Gmail</h2></div>
+                    <p style="color:var(--muted);font-size:13px;margin-bottom:12px">Receba avisos de prazo mesmo quando a agenda estiver fechada.</p>
+                    <label class="field-label" for="emailDestino">Gmail que receberá os avisos</label>
+                    <input type="email" id="emailDestino" placeholder="voce@gmail.com" autocomplete="email">
+                    <button type="button" class="btn btn-primary btn-block" id="salvarEmail" style="margin-top:10px">Salvar e ativar alertas</button>
+                    <div id="emailStatus" role="status" style="font-size:12px;color:var(--muted);margin-top:10px">Configure o endereço e salve para ativar.</div>
+                </section>
+
+                <section class="panel quote">
+                    <p>"O código não se escreve sozinho, mas os grandes resultados vêm de quem não para."</p>
+                    <small>— Dev</small>
+                </section>
+            </aside>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="agenda.js"></script>
+</body>
+</html>
